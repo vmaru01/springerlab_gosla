@@ -1,34 +1,20 @@
-from Bio import SeqIO
-from Bio.Blast import NCBIWWW
-from Bio.Blast import NCBIXML
+# Dependencies
+
+from Bio import SeqIO  # file parser
+from Bio.Blast import NCBIWWW  # Blast to the web
+from Bio.Blast import NCBIXML  # and back
 NCBIWWW.email = "maruyinks@gmail.com"
 
 filename = "file/FAT81153_pass_944e9f34_212.fastq"
 
-
-# define function to blast records;
-# def blastseq_request(line_count):
-#     records = list((SeqIO.parse(filename, "fastq")))
-#     for i in range(line_count):
-#         print(f"ID: {records[i].id} | Sequence: {records[i].seq[:20]}...{records[i].seq[-10:]}")
-
-
-# blastseq_request(7)
-# return sequence id for blast-ing
-
-# def nth_line_seq(line_number):
-#     with open(filename, "r") as handle:
-#         records = list(SeqIO.parse(handle, "fastq"))
-#         result = records[line_number].seq[:20]
-#         return result
-
-
-# print(nth_line_seq(12))
+# Blast sequence and write result to a xml file
+# OUT: Parse file, index sequences and blast using index
 records = list(SeqIO.parse(filename, "fastq"))
-result_handle = NCBIWWW.qblast("blastn", "nt", records[2].seq)
+result_handle = NCBIWWW.qblast("blastn", "nt", records[2].seq)  # get sequence read using index location
 
+# IN: save result to xml format
 with open("test_blast.xml", "w") as out_handle:
-    out_handle.write(result_handle.read())
+    out_handle.write(result_handle.read())  # use str result as write object
 result_handle.close()
 
 result_handle = open("test_blast.xml")
