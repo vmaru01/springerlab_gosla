@@ -36,14 +36,15 @@ for item in os.listdir(fastq_dir):
 # Filter
 with open("test_blast.xml") as xml_read:
     blast_result = NCBIXML.parse(xml_read)
-    eval_threshold = float(input("Enter the e-value to filter by (ex. 2.3e-4): "))
-    for alignment in blast_result.alignments:
-        for hsp in alignment.hsps:
-            print(hsp.id)
-            print(hsp.score)
-            print(hsp.identities)
-            if hsp.evalue < eval_threshold:
-                print(hsp)   # revise
+    # eval_threshold = float(input("Enter the e-value to filter by (ex. 2.3e-4): "))
+    print(dir(blast_result))
+
+        # for hsp in list_item.hsps:
+        #     print(hsp.id)
+        #     print(hsp.score)
+        #     print(hsp.identities)
+        #     if hsp.evalue < eval_threshold:
+        #         print(hsp)   # revise
 
 # entrez_handle = Entrez.esearch(db='Nucleotide')
 
