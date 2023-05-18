@@ -3,13 +3,14 @@
 import os
 import gzip
 from Bio import Entrez
+from Bio import SearchIO
 from Bio import SeqIO  # file parser
 from Bio.Blast import NCBIWWW  # Blast to the web and back
 from Bio.Blast import NCBIXML  # sort and filter blast output
 
 Entrez.email = 'vmaru01@outlook.com'
 NCBIWWW.email = 'vmaru01@outlook.com'
-fastq_dir = '/Users/springerlab/Desktop/Nanopore Test Data/20220817-sla-luc/no_sample/20220817_1750_MC-113190_FAT81153_9a4aacb0/fastq_pass'
+fastq_dir = "C:/Users/steam/Downloads/Nanopore Data"
 
 # To BLAST and Back
 i = 0
@@ -34,61 +35,23 @@ for item in os.listdir(fastq_dir):
         i += 1
 
 # Filter
-with open("test_blast.xml") as xml_read:
-    blast_result = NCBIXML.parse(xml_read)
-    # eval_threshold = float(input("Enter the e-value to filter by (ex. 2.3e-4): "))
-    print(dir(blast_result))
+xml_read = open("test_blast.xml")
+blast_result = SearchIO.parse(xml_read, "blast-xml")
+eval_threshold = float(input("Enter the e-value to filter by (ex. 2.3e-4): "))
+for item in blast_result:
+    print(item)
+    for hsp in item.hsps:
+        if hsp.evalue < eval_threshold:
+            print(hsp)
+            print(f"BITSCORE: {hsp.bitscore}")
+            print(f"HIT ID: {hsp.hit_id}")
+            print(f"EVALUE: {hsp.evalue}")
+            print("**********" * 4)
+          # revise
+xml_read.close()
 
-        # for hsp in list_item.hsps:
-        #     print(hsp.id)
-        #     print(hsp.score)
-        #     print(hsp.identities)
-        #     if hsp.evalue < eval_threshold:
-        #         print(hsp)   # revise
-
-# entrez_handle = Entrez.esearch(db='Nucleotide')
-
-# Filter
-# with open("test_blast.xml", "r") as xml_read:
-#     blast_result = SearchIO.parse("test_blast.xml", "blast-xml")
-#     eval_threshold = float(input("Enter the e-value to filter by (ex. 2.3e-4): "))
-#     for alignment in blast_result:
-#         print(alignment)
-#         for hsp in alignment.hsps:
-#             if hsp.evalue < eval_threshold:
-#                 print(f"HSP: {hsp}")
-#                 print("---------------------"*4)
-
-# # unzip folder for BLAST
-# if zipfile.is_zipfile(fastqzip_dir):  # zipped file check
-#     with zipfile.ZipFile(fastqzip_dir, "r") as zipped_file:
-#         for filename in zipped_file.namelist():  # list zipped file content
-#             print(f".namelist(): {zipped_file.namelist()} \nCurrent filename: {filename}")
-#             if filename.lower().endswith((".fastq.gz", "fasta")):  # fastq, fasta file check
-#                 print("Checking file format...file matches")
-#                 file = filename.read()
-#                 # OUT: BLAST - Parse file, index sequences and blast using sequence index
-#                 #
-#                 #
-#             else:
-#                 print("Not a file")
-# else:
-#     print("Not a zipped file")
-#
-#                 print("---------------------"*4)
-#
-# # unzip folder for BLAST
-# if zipfile.is_zipfile(fastqzip_dir):  # zipped file check
-#     with zipfile.ZipFile(fastqzip_dir, "r") as zipped_file:
-#         for filename in zipped_file.namelist():  # list zipped file content
-#             print(f".namelist(): {zipped_file.namelist()} \nCurrent filename: {filename}")
-#             if filename.lower().endswith((".fastq.gz", "fasta")):  # fastq, fasta file check
-#                 print("Checking file format...file matches")
-#                 file = filename.read()
-#                 # OUT: BLAST - Parse file, index sequences and blast using sequence index
-#                 #
-#                 #
-#             else:
-#                 print("Not a file")
-# else:
-#     print("Not a zipped file")
+#ENTREZ
+handle = Entrez.esearch(db="nucleotide", term="txid63221")
+record = Entrez.read(handle)
+for result in record:
+    print(record)
