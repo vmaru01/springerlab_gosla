@@ -34,7 +34,6 @@ for filename in os.listdir(fasta_dir):
             word_size=word_size,
             gapcosts=gapcosts
         )
-        result_handle = urllib.request.urlopen(request, timeout=600)  # Set the timeout to 600 seconds (10 minutes)
         
         # Save the result content
         result_content = result_handle.read()
