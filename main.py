@@ -6,7 +6,6 @@ from Bio import Entrez
 from Bio import SearchIO
 from Bio import SeqIO  # file parser
 from Bio.Blast import NCBIWWW  # Blast to the web and back
-# from Bio.Blast import NCBIXML  # sort and filter blast output
 
 Entrez.email = 'vmaru01@outlook.com'
 NCBIWWW.email = 'vmaru01@outlook.com'
@@ -37,33 +36,26 @@ for item in os.listdir(fastq_dir):
 # Filter
 xml_read = open("test_blast.xml")
 blast_result = SearchIO.parse(xml_read, "blast-xml")
-eval_threshold = float(input("Enter the e-value to filter by (ex. 2.3e-4): "))
+eval_threshold = float(input("Enter the e-value to filter by (ex. 1.3e-1); Lower e-values will give more "
+                             "significant results: "))
+gi_list = []
 for item in blast_result:
-    print(item)
+    print(f"BLAST SUMMARY: \n {item}")
     for hsp in item.hsps:
         if hsp.evalue < eval_threshold:
-            # taxids = item.accession.split('.')[0]
-            # print(f"TAXID: {taxids}")
-            print(hsp)
-            print(f"BITSCORE: {hsp.bitscore}")
-            print(f"HIT ID: {hsp.hit_id}")
-            print(f"EVALUE: {hsp.evalue}")
-            print("**********" * 6)
-        # revise
+            gi_list.append(hsp.hit_id.split("|")[1])
 xml_read.close()
 
 # ENTREZ
-search_handle = Entrez.esearch(db="taxonomy", term="63221")
-search_record = Entrez.read(search_handle)
-search_handle.close()
-print(search_record)
+for gi_number in range(len(gi_list)):
+    search_handle = Entrez.esearch(db="nuccore", term=gi_list[gi_number])
+    search_record = Entrez.read(search_handle)
+    search_handle.close()
 
-link_handle = Entrez.elink(db="taxonomy", id=search_record['IdList'][0])
-link_record = Entrez.read(link_handle)
-search_handle.close()
-print(link_record)
-
-post_handle = Entrez.esummary(db="taxonomy", id=link_record[0]['LinkSetDb'][0]['Link'][0])
-post_record = Entrez.parse(post_handle)
-search_handle.close()
-print(post_record)
+    for search_id in search_record["IdList"]:
+        fetch_handle = Entrez.efetch(db="nuccore", id=search_id, rettype='gb', retmode="xml")
+        fetch_record = Entrez.parse(fetch_handle)
+        search_handle.close()
+        for record in fetch_record:
+            if "Viridiplantae" in record['GBSeq_taxonomy']:
+                print(record["GBSeq_organism"])
